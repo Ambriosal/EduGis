@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run frontend linting
+echo "Running frontend linting..."
+cd frontend
+npm run lint
+cd .. #Move back to root
+
+# Run backend linting
+echo "Running backend linting..."
+cd backend
+gradle styleCheck
+cd ..
