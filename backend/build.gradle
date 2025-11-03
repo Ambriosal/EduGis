@@ -1,0 +1,167 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'jacoco' // Testing
+    //Style plugins
+    id 'checkstyle' // Checkstyle
+    id 'pmd' //PMD
+    id 'com.github.spotbugs' version '6.0.4' //Spotbugs
+
+}
+
+group = 'com.example.cis4900.spring'
+version = '1.0'
+archivesBaseName="notes-app"
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+jacoco {
+        toolVersion = "0.8.11"
+}
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.11'
+    runtimeOnly 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+   testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:3.11.2' // Adding Mockito dependency for testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1' // Adding JUnit 5 dependency for testing
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1' // Adding JUnit 5 engine for testing
+}
+
+//Command that runs Junit and Jacoco Testing
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport // report is always generated after tests run
+
+}
+
+//Jacoco
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        csv.required = true
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacocoTestReport.doLast { //show in terminal Coverage report
+    def reportFile = file("${buildDir}/reports/jacoco/test/jacocoTestReport.csv")
+    if (reportFile.exists()) {
+        println "\n" + "=".repeat(60)
+        println "JACOCO COVERAGE REPORT"
+        println "=".repeat(60)
+        
+        reportFile.readLines().drop(1).each { line ->
+            def cols = line.split(',')
+            if (cols[2] != '0' || cols[3] != '0') { // Skip empty classes
+                def className = cols[2].split('/').last()
+                def instructionCovered = cols[3] as int
+                def instructionTotal = instructionCovered + (cols[4] as int)
+                def branchCovered = cols[5] as int
+                def branchTotal = branchCovered + (cols[6] as int)
+                
+                if (instructionTotal > 0) {
+                    def coverage = (instructionCovered / instructionTotal * 100).round(2)
+                    println "${className}: ${coverage}% coverage"
+                }
+            }
+        }
+        println "=".repeat(60)
+        println "Full report: ${rootProject.projectDir}/build/reports/jacoco/test.html"
+        println "=".repeat(60) + "\n"
+    }
+}
+ /* Checkstyle configuration */
+checkstyle {
+    toolVersion = '10.12.5'
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true // TEMP
+    maxWarnings = 0 // Set to 0 to fail the build on any warnings
+    maxErrors = 0 // Set to 0 to fail the build on any errors
+}
+
+//Emsures the main checkstlye tasks uses the conig above
+tasks.withType(Checkstyle) {
+    reports {
+        xml.required = false
+        html.required = true
+        html.outputLocation = file("${buildDir}/reports/checkstyle/checkstyle.html")
+        // maxHeapSize = "512m" //Only runs on changed files
+
+    }
+}
+
+// Create a single 'checkstyle' task that runs all checkstyle tasks
+tasks.register('checkstyle') {
+    dependsOn tasks.withType(Checkstyle)
+    group = 'verification'
+    description = 'Runs all Checkstyle tasks'
+}
+
+/* PMD configuration */
+pmd {
+    toolVersion = '6.49.0'
+    consoleOutput = true
+    ruleSets = [] // Disable default rule sets
+    ruleSetFiles = files("${rootProject.projectDir}/config/pmd/pmd-ruleset.xml")
+    ignoreFailures = true // TEMP
+}
+
+tasks.withType(Pmd) {
+    reports {
+        xml.required = false
+        html.required = true
+        html.outputLocation = file("${buildDir}/reports/pmd/pmd.html")
+        // maxHeapSize = "512m" //Only runs on changed files
+    }
+}
+
+// Create a single 'pmd' task that runs all checkstyle tasks
+tasks.register('pmd') {
+    dependsOn tasks.withType(Pmd)
+    group = 'verification'
+    description = 'Runs all PMD tasks'
+}
+
+
+
+/* spotbugs configuration */
+spotbugs {
+    toolVersion = '4.7.3'
+    ignoreFailures = true // TEMP
+    excludeFilter = file("${rootProject.projectDir}/config/spotbugs/spotbugs-exclude.xml")
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+    reports {
+        xml.required = false
+        html.required = true
+        html.outputLocation = file("${buildDir}/reports/spotbugs/spotbugs.html")
+    }
+}
+
+tasks.register('spotbugs') {
+    dependsOn tasks.withType(com.github.spotbugs.snom.SpotBugsTask)
+    group = 'verification'
+    description = 'Runs all SpotBugs tasks'
+}
+
+
+//Make the check task depend on the checkstyle
+check.dependsOn checkstyleMain, checkstyleTest, pmdMain, pmdTest, spotbugsMain, spotbugsTest
+
+//Run all style checks with one command
+task styleCheck(dependsOn: ['checkstyleMain', 'checkstyleTest', 'pmdMain', 'pmdTest', 'spotbugsMain', 'spotbugsTest']) {
+    group = 'verification'
+    description = 'Runs all static analysis tools'
+}
+
+
