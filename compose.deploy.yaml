@@ -40,6 +40,9 @@ services:  # Defines the services that make up the application
       - DB_DATABASE=template_db  # The name of the database to use
       - DB_USER=root  # The username for the database
       - DB_PASSWORD=pwd  # The password for the database
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
+      - SPRING_SQL_INIT_MODE=always
     #Networks: The service is attached to spring-mysql and spring-react networks, enabling network communication with the MySQL and React services.
     networks:  # Networks the Spring service is connected to
       - backend-database  # Network for communicating with MySQL

@@ -25,7 +25,7 @@ export default function App() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/facilities')
+    fetch('/api/facilities')
       .then((res) => res.json())
       .then((data) => setFacilities(data))
       .catch((err) => console.error('Error fetching facilities:', err));
