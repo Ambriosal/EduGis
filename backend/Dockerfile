@@ -42,6 +42,8 @@ COPY gradle/wrapper/ gradle/wrapper/
 COPY gradlew gradlew.bat ./
 COPY build.gradle ./
 
+RUN chmod +x gradlew
+
 # Warm Gradle cache so the wrapper doesn’t re-download each build
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon --version

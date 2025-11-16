@@ -3,6 +3,7 @@ import './index.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -12,6 +13,16 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+const createClusterCustomIcon = (cluster: any) => {
+  const count = cluster.getChildCount();
+
+  return L.divIcon({
+    html: `<span>${count}</span>`,
+    className: 'custom-cluster-icon',
+    iconSize: L.point(40, 40, true),
+  });
+};
 
 // --- Define types ---
 interface Facility {
@@ -46,17 +57,23 @@ export default function App() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
       />
-      {facilities.map((facility) => (
-        <Marker key={facility.id} position={[facility.latitude, facility.longitude] as [number, number]}>
-          <Popup>
-            <strong>{facility.name}</strong>
-            <br />
-            Lat: {facility.latitude}
-            <br />
-            Lng: {facility.longitude}
-          </Popup>
-        </Marker>
-      ))}
+      <MarkerClusterGroup
+        maxClusterRadius={100}
+        iconCreateFunction={createClusterCustomIcon}
+        showCoverageOnHover={false}
+      >
+        {facilities.map((facility) => (
+          <Marker key={facility.id} position={[facility.latitude, facility.longitude] as [number, number]}>
+            <Popup>
+              <strong>{facility.name}</strong>
+              <br />
+              Lat: {facility.latitude}
+              <br />
+              Lng: {facility.longitude}
+            </Popup>
+          </Marker>
+        ))}
+      </MarkerClusterGroup>
     </MapContainer>
   );
 }
