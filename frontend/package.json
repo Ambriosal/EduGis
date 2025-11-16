@@ -33,7 +33,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "leaflet": "^1.9.x",
-    "react-leaflet": "^4.2.x"
+    "react-leaflet": "^4.2.x",
+    "react-leaflet-cluster": "^3.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
