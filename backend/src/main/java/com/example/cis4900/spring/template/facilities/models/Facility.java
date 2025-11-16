@@ -1,4 +1,4 @@
-package com.example.cis4900.spring.template.models;
+package com.example.cis4900.spring.template.facilities.models;
 
 import jakarta.persistence.*;
 
