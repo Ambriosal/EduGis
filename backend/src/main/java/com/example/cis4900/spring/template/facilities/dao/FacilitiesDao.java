@@ -7,6 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface FacilitiesDao extends CrudRepository<Facility, Integer> {
 
-    @Query("SELECT COUNT(*) FROM Note")
+    @Query("SELECT COUNT(*) FROM Facility")
     Integer getCount();
 }

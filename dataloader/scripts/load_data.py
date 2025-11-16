@@ -5,7 +5,7 @@ import re
 import mysql.connector
 
 CSV_PATH = "odef_v3.csv"
-DB_HOST = os.getenv("DB_HOST", "mariadb")
+DB_HOST = os.getenv("DB_HOST", "database")
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "pwd")
 DB_NAME = os.getenv("DB_NAME", "template_db")
@@ -22,20 +22,30 @@ USE_COLUMNS = [
 ]
 
 def wait_for_db():
-    """Try connecting until MariaDB is ready."""
+    """Try connecting until MariaDB and the facilities table are ready."""
     while True:
         try:
             conn = mysql.connector.connect(
                 host=DB_HOST,
                 user=DB_USER,
-                password=DB_PASSWORD
+                password=DB_PASSWORD,
+                database=DB_NAME
             )
+            cursor = conn.cursor()
+            cursor.execute(f"SHOW TABLES LIKE '{DB_TABLE}'")
+            result = cursor.fetchone()
+            cursor.close()
             conn.close()
-            print("MariaDB is ready.")
-            return
-        except:
-            print("Waiting for MariaDB...")
-            time.sleep(2)
+
+            if result:
+                print(f"MariaDB and table '{DB_TABLE}' are ready.")
+                return
+            else:
+                print(f"MariaDB is up, waiting for table '{DB_TABLE}' to be created...")
+        except Exception as e:
+            print(f"Waiting for MariaDB... ({e})")
+        time.sleep(2)
+
 
 def parse_point(point_str):
     """
@@ -78,6 +88,8 @@ def load_csv(filepath):
     # Parse geometry → latitude + longitude
     df["latitude"], df["longitude"] = zip(*df["geometry"].map(parse_point))
     df = df.drop(columns=["geometry"])
+        
+    df = df.dropna(subset=["latitude", "longitude"])
 
     # Combine boolean facility types into one column
     df["type"] = df.apply(combine_types, axis=1)
@@ -92,6 +104,10 @@ def load_csv(filepath):
         "type",
         "region"
     ]]
+
+    df = df.rename(columns={
+        "facility_name": "name"
+    })
 
     return df.to_dict(orient="records")
 

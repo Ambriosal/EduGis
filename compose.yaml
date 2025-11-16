@@ -33,9 +33,11 @@ services:
   dataloader:
     build: ./dataloader
     environment:
-      - DB_ADDRESS=jdbc:mysql://database:3306
-      - DB_DATABASE=template_db
+      - DB_HOST=database
+      - DB_NAME=template_db
       - DB_USER=root
       - DB_PASSWORD=pwd
+      - BATCH_SIZE=1000
     depends_on:
       - database
+
