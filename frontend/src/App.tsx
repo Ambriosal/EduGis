@@ -4,11 +4,14 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import RegionFilter from './components/RegionFilter';
+import FacilityTypeFilter from './components/FacilityTypeFilter';
+
 import 'leaflet.markercluster';
 import type { MarkerCluster } from 'leaflet.markercluster';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
 delete (L.Icon.Default.prototype as any)._getIconUrl;
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -16,9 +19,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Optional cluster icon (if needed later)
 const createClusterCustomIcon = (cluster: MarkerCluster) => {
   const count = cluster.getChildCount();
-
   return L.divIcon({
     html: `<span>${count}</span>`,
     className: 'custom-cluster-icon',
@@ -26,82 +29,104 @@ const createClusterCustomIcon = (cluster: MarkerCluster) => {
   });
 };
 
-// --- Define types ---
+// ---- Types ----
 interface Facility {
   id: number;
   name: string;
   latitude: number;
   longitude: number;
-  region: string; // must exist for filtering
+  region?: string; // region filter
+  type?: string; // type filter
 }
 
 export default function App() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
+
+  // region filter state
   const [regions, setRegions] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
 
-  // Fetch facilities
+  // type filter state
+  const [facilityTypes, setFacilityTypes] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+
+  // ---- Fetch facilities ----
   useEffect(() => {
     fetch('/api/facilities')
       .then((res) => res.json())
-      .then((data) => setFacilities(data))
+      .then((data: Facility[]) => {
+        // fallback if missing "type"
+        const updated = data.map((f) => ({
+          ...f,
+          type: f.type || 'Unknown',
+        }));
+
+        setFacilities(updated);
+
+        // extract unique types
+        const types = Array.from(new Set(updated.map((f) => f.type || 'Unknown')));
+        setFacilityTypes(types);
+      })
       .catch((err) => console.error('Error fetching facilities:', err));
   }, []);
 
-  // Fetch region list
+  // ---- Fetch regions ----
   useEffect(() => {
     fetch('/api/regions')
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setRegions(data);
-        } else {
-          // fallback for testing
-          setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']);
-        }
+        if (Array.isArray(data)) setRegions(data);
+        else setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']);
       })
-      .catch(() => {
-        // fallback if server error
-        setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']);
-      });
+      .catch(() => setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']));
   }, []);
 
-  // Filter facilities based on selected regions
-  const filteredFacilities = selectedRegions.length
-    ? facilities.filter((f) => selectedRegions.includes(f.region))
-    : facilities;
+  // ---- Apply both filters ----
+  let filteredFacilities = [...facilities];
 
-  const defaultCenter: [number, number] = [43.6532, -79.3832]; // Toronto
-  const defaultZoom = 4;
+  // region filter
+  if (selectedRegions.length > 0) {
+    filteredFacilities = filteredFacilities.filter((f) => selectedRegions.includes(f.region || ''));
+  }
+
+  // type filter
+  if (selectedTypes.length > 0) {
+    filteredFacilities = filteredFacilities.filter((f) => selectedTypes.includes(f.type || 'Unknown'));
+  }
+
+  const defaultCenter: [number, number] = [43.6532, -79.3832];
+  const defaultZoom = 6;
 
   return (
     <>
-      {/* Region Filter UI */}
       <RegionFilter regions={regions} selectedRegions={selectedRegions} onChange={setSelectedRegions} />
 
-      {/* Map */}
+      <FacilityTypeFilter types={facilityTypes} selectedTypes={selectedTypes} onChange={setSelectedTypes} />
+
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
-        scrollWheelZoom={true}
+        scrollWheelZoom
         className="map-container"
         style={{ height: '100vh', width: '100%' }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+          attribution="&copy; OpenStreetMap contributors"
         />
 
         {filteredFacilities.map((facility) => (
-          <Marker key={facility.id} position={[facility.latitude, facility.longitude] as [number, number]}>
+          <Marker key={facility.id} position={[facility.latitude, facility.longitude]}>
             <Popup>
               <strong>{facility.name}</strong>
+              <br />
+              <em>Type:</em> {facility.type}
+              <br />
+              <em>Region:</em> {facility.region}
               <br />
               Lat: {facility.latitude}
               <br />
               Lng: {facility.longitude}
-              <br />
-              Region: {facility.region}
             </Popup>
           </Marker>
         ))}
