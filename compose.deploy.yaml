@@ -68,6 +68,18 @@ services:  # Defines the services that make up the application
     networks:  # Network the React service is connected to
       - backend-frontend  # Network for communicating with the backend service
       - swag-frontend # Network to allow reverse proxy to communicate with frontend
+  
+  dataloader:
+    build: ./dataloader
+    environment:
+      - DB_HOST=database
+      - DB_NAME=template_db
+      - DB_USER=root
+      - DB_PASSWORD=pwd
+      - BATCH_SIZE=1000
+    depends_on:
+      - database
+
 volumes:
   mariadb_data:  # Defines a named volume 'mariadb_data' for the MySQL service to use for data persistence
 
