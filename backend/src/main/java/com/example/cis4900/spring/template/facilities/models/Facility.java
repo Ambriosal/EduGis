@@ -15,7 +15,6 @@ public class Facility {
     private String type;
     private String region;
 
-
     public Facility() {}
 
     public Facility(String name, Double latitude, Double longitude, String type, String region) {
