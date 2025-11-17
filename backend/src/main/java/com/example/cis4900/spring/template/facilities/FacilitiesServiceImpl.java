@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.cis4900.spring.template.facilities.dao.FacilitiesDao;
-import com.example.cis4900.spring.template.facilities.models.Facility;
+import com.example.cis4900.spring.template.models.Facility;
 
 @Service
 public class FacilitiesServiceImpl implements FacilitiesService {

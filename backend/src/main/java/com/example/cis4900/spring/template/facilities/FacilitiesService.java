@@ -1,6 +1,6 @@
 package com.example.cis4900.spring.template.facilities;
 
-import com.example.cis4900.spring.template.facilities.models.Facility;
+import com.example.cis4900.spring.template.models.Facility;
 
 
 public interface FacilitiesService {
