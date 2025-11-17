@@ -9,14 +9,20 @@ import com.example.cis4900.spring.template.repositories.FacilityRepository;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/facilities")
+@RequestMapping("/api/")
 public class FacilityController {
 
     @Autowired
     private FacilityRepository facilityRepository;
 
-    @GetMapping
+    @GetMapping("facilities")
     public List<Facility> getAllFacilities() {
         return facilityRepository.findAll();
     }
+
+    @GetMapping("regions")
+    public List<String> getRegions(){
+        return facilityRepository.getRegions();
+    }
+
 }

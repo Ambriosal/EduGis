@@ -5,6 +5,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import RegionFilter from './components/RegionFilter';
 import FacilityTypeFilter from './components/FacilityTypeFilter';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 
 import 'leaflet.markercluster';
 import type { MarkerCluster } from 'leaflet.markercluster';
@@ -115,21 +116,27 @@ export default function App() {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        {filteredFacilities.map((facility) => (
-          <Marker key={facility.id} position={[facility.latitude, facility.longitude]}>
-            <Popup>
-              <strong>{facility.name}</strong>
-              <br />
-              <em>Type:</em> {facility.type}
-              <br />
-              <em>Region:</em> {facility.region}
-              <br />
-              Lat: {facility.latitude}
-              <br />
-              Lng: {facility.longitude}
-            </Popup>
-          </Marker>
-        ))}
+        <MarkerClusterGroup
+          maxClusterRadius={100}
+          iconCreateFunction={createClusterCustomIcon}
+          showCoverageOnHover={false}
+        >
+          {filteredFacilities.map((facility) => (
+            <Marker key={facility.id} position={[facility.latitude, facility.longitude]}>
+              <Popup>
+                <strong>{facility.name}</strong>
+                <br />
+                <em>Type:</em> {facility.type}
+                <br />
+                <em>Region:</em> {facility.region}
+                <br />
+                Lat: {facility.latitude}
+                <br />
+                Lng: {facility.longitude}
+              </Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
     </>
   );
