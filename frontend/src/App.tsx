@@ -4,6 +4,9 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import RegionFilter from './components/RegionFilter';
+import 'leaflet.markercluster';
+import type { MarkerCluster } from 'leaflet.markercluster';
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
