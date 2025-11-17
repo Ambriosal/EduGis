@@ -3,8 +3,8 @@ import './index.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import RegionFilter from './components/RegionFilter';
 import 'leaflet.markercluster';
-import MarkerClusterGroup from 'react-leaflet-cluster';
 import type { MarkerCluster } from 'leaflet.markercluster';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,11 +32,15 @@ interface Facility {
   name: string;
   latitude: number;
   longitude: number;
+  region: string; // must exist for filtering
 }
 
 export default function App() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [regions, setRegions] = useState<string[]>([]);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
 
+  // Fetch facilities
   useEffect(() => {
     fetch('/api/facilities')
       .then((res) => res.json())
@@ -44,27 +48,51 @@ export default function App() {
       .catch((err) => console.error('Error fetching facilities:', err));
   }, []);
 
-  const defaultCenter: [number, number] = [43.6532, -79.3832]; // toronto
+  // Fetch region list
+  useEffect(() => {
+    fetch('/api/regions')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRegions(data);
+        } else {
+          // fallback for testing
+          setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']);
+        }
+      })
+      .catch(() => {
+        // fallback if server error
+        setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']);
+      });
+  }, []);
+
+  // Filter facilities based on selected regions
+  const filteredFacilities = selectedRegions.length
+    ? facilities.filter((f) => selectedRegions.includes(f.region))
+    : facilities;
+
+  const defaultCenter: [number, number] = [43.6532, -79.3832]; // Toronto
   const defaultZoom = 4;
 
   return (
-    <MapContainer
-      center={defaultCenter}
-      zoom={defaultZoom}
-      scrollWheelZoom={true}
-      className="map-container"
-      style={{ height: '100vh', width: '100%' }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <MarkerClusterGroup
-        maxClusterRadius={100}
-        iconCreateFunction={createClusterCustomIcon}
-        showCoverageOnHover={false}
+    <>
+      {/* Region Filter UI */}
+      <RegionFilter regions={regions} selectedRegions={selectedRegions} onChange={setSelectedRegions} />
+
+      {/* Map */}
+      <MapContainer
+        center={defaultCenter}
+        zoom={defaultZoom}
+        scrollWheelZoom={true}
+        className="map-container"
+        style={{ height: '100vh', width: '100%' }}
       >
-        {facilities.map((facility) => (
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+        />
+
+        {filteredFacilities.map((facility) => (
           <Marker key={facility.id} position={[facility.latitude, facility.longitude] as [number, number]}>
             <Popup>
               <strong>{facility.name}</strong>
@@ -72,10 +100,12 @@ export default function App() {
               Lat: {facility.latitude}
               <br />
               Lng: {facility.longitude}
+              <br />
+              Region: {facility.region}
             </Popup>
           </Marker>
         ))}
-      </MarkerClusterGroup>
-    </MapContainer>
+      </MapContainer>
+    </>
   );
 }

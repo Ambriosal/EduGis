@@ -1,6 +1,6 @@
 package com.example.cis4900.spring.template.controllers;
 
-import com.example.cis4900.spring.template.facilities.models.Facility;
+import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
