@@ -18,9 +18,6 @@ services:
       - DB_DATABASE=template_db
       - DB_USER=root
       - DB_PASSWORD=pwd
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
-      - SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
-      - SPRING_SQL_INIT_MODE=always
     depends_on:
       - database
 
@@ -32,3 +29,15 @@ services:
       - BACKEND_PROXY=http://backend:8080
     depends_on:
       - backend
+  
+  dataloader:
+    build: ./dataloader
+    environment:
+      - DB_HOST=database
+      - DB_NAME=template_db
+      - DB_USER=root
+      - DB_PASSWORD=pwd
+      - BATCH_SIZE=1000
+    depends_on:
+      - database
+

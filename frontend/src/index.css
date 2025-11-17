@@ -39,3 +39,15 @@ code {
 .App-link {
   color: #61dafb;
 }
+
+.custom-cluster-icon {
+  background: #2a93ee;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid white;
+}
