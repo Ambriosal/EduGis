@@ -2,14 +2,12 @@ package com.example.cis4900.spring.template.controllers;
 
 import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class FacilityControllerTest {
 
     @Mock
@@ -25,89 +24,64 @@ class FacilityControllerTest {
     @InjectMocks
     private FacilityController facilityController;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    void testGetAllFacilities_returnsList() {
-        Facility f1 = mock(Facility.class);
-        Facility f2 = mock(Facility.class);
+    void getAllFacilities_returnsListFromRepository() {
+        Facility f1 = new Facility("Facility A", 43.0, -79.0, "Elementary", "ON");
+        f1.setId(1L);
+
+        Facility f2 = new Facility("Facility B", 44.0, -80.0, "Secondary", "QC");
+        f2.setId(2L);
 
         when(facilityRepository.findAll()).thenReturn(Arrays.asList(f1, f2));
 
         List<Facility> result = facilityController.getAllFacilities();
 
-        assertNotNull(result, "result should not be null");
-        assertEquals(2, result.size(), "should return two facilities");
-        assertSame(f1, result.get(0), "first element should match stub");
-        assertSame(f2, result.get(1), "second element should match stub");
-        verify(facilityRepository, times(1)).findAll();
-    }
-
-    @Test
-    void testGetAllFacilities_empty() {
-        when(facilityRepository.findAll()).thenReturn(Collections.emptyList());
-
-        List<Facility> result = facilityController.getAllFacilities();
-
-        assertNotNull(result, "result should not be null even when empty");
-        assertTrue(result.isEmpty(), "result should be empty");
-        verify(facilityRepository, times(1)).findAll();
-    }
-
-    @Test
-    void testGetAllFacilities_nullReturned() {
-        when(facilityRepository.findAll()).thenReturn(null);
-
-        List<Facility> result = facilityController.getAllFacilities();
-
-        assertNull(result, "controller should return null if repository returns null");
-        verify(facilityRepository, times(1)).findAll();
-    }
-
-    @Test
-    void testRepository_interaction_snapshot() {
-        when(facilityRepository.findAll()).thenReturn(Collections.emptyList());
-
-        List<Facility> result = facilityController.getAllFacilities();
-
         assertNotNull(result);
+        assertEquals(2, result.size());
+        assertSame(f1, result.get(0));
+        assertSame(f2, result.get(1));
+
         verify(facilityRepository, times(1)).findAll();
         verifyNoMoreInteractions(facilityRepository);
     }
 
     @Test
-    void testFacilityModel_reflection_instantiable() throws Exception {
-        Class<?> cls = Class.forName("com.example.cis4900.spring.template.models.Facility");
-        assertNotNull(cls, "Facility class should be present");
+    void getAllFacilities_returnsEmptyList() {
+        when(facilityRepository.findAll()).thenReturn(Collections.emptyList());
 
-        // try to instantiate via no-arg constructor if present
-        Constructor<?> noArg = null;
-        for (Constructor<?> c : cls.getDeclaredConstructors()) {
-            if (c.getParameterCount() == 0) {
-                noArg = c;
-                break;
-            }
-        }
-        if (noArg != null) {
-            noArg.setAccessible(true);
-            Object inst = noArg.newInstance();
-            assertNotNull(inst, "should instantiate Facility via no-arg constructor");
-        } else {
-            // if no no-arg constructor, at least ensure a constructor exists
-            assertTrue(cls.getDeclaredConstructors().length > 0, "Facility should have at least one constructor");
-        }
+        List<Facility> result = facilityController.getAllFacilities();
 
-        // check for common accessor methods if present but do not fail if absent
-        Method[] methods = cls.getMethods();
-        boolean hasGetId = false;
-        boolean hasGetName = false;
-        for (Method m : methods) {
-            if ("getId".equals(m.getName())) hasGetId = true;
-            if ("getName".equals(m.getName())) hasGetName = true;
-        }
-        assertTrue(hasGetId || hasGetName || methods.length > 0, "Facility should expose some public methods");
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(facilityRepository, times(1)).findAll();
+        verifyNoMoreInteractions(facilityRepository);
+    }
+
+    @Test
+    void facilityModel_gettersAndSetters_work() {
+        Facility facility = new Facility("Original", 1.0, 2.0, "Type1", "Region1");
+        facility.setId(10L);
+
+        // initial values
+        assertEquals(10L, facility.getId());
+        assertEquals("Original", facility.getName());
+        assertEquals(1.0, facility.getLatitude());
+        assertEquals(2.0, facility.getLongitude());
+        assertEquals("Type1", facility.getType());
+        assertEquals("Region1", facility.getRegion());
+
+        // mutate
+        facility.setName("Updated");
+        facility.setLatitude(3.0);
+        facility.setLongitude(4.0);
+        facility.setType("Type2");
+        facility.setRegion("Region2");
+
+        assertEquals("Updated", facility.getName());
+        assertEquals(3.0, facility.getLatitude());
+        assertEquals(4.0, facility.getLongitude());
+        assertEquals("Type2", facility.getType());
+        assertEquals("Region2", facility.getRegion());
     }
 }
