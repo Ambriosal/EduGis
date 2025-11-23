@@ -26,48 +26,62 @@ export default function CompareFacilityTypeFilter({ types, selectedTypes, onChan
   return (
     <div
       style={{
-        position: 'absolute',
-        top: 60,
-        left: 260,
-        zIndex: 1000,
-        background: 'white',
-        padding: '15px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        minWidth: '220px',
+        background: '#ffffff',
+        padding: '16px',
+        borderRadius: '10px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        border: '1px solid #e5e7eb',
+        width: '240px',
+        marginBottom: '20px',
       }}
     >
-      <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label>
-          <strong>Filter by Type:</strong>
-        </label>
+      {/* Header */}
+      <div
+        style={{
+          marginBottom: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span style={{ fontWeight: 600, fontSize: '15px' }}>Filter by Type</span>
+
         <button
           onClick={handleSelectAll}
           style={{
             fontSize: '11px',
-            padding: '4px 8px',
+            padding: '4px 10px',
             cursor: 'pointer',
-            background: '#f3f4f6',
+            background: '#f1f5f9',
             border: '1px solid #d1d5db',
-            borderRadius: '4px',
+            borderRadius: '6px',
           }}
         >
           {selectedTypes.length === types.length ? 'Clear All' : 'Select All'}
         </button>
       </div>
+
+      {/* List */}
       <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
         {types.map((type) => (
-          <div key={type} style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={selectedTypes.includes(type)}
-                onChange={() => handleToggle(type)}
-                style={{ marginRight: '8px', cursor: 'pointer' }}
-              />
-              <span>{type}</span>
-            </label>
-          </div>
+          <label
+            key={type}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '10px',
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedTypes.includes(type)}
+              onChange={() => handleToggle(type)}
+              style={{ marginRight: '10px', cursor: 'pointer' }}
+            />
+            {type}
+          </label>
         ))}
       </div>
     </div>

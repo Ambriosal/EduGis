@@ -26,48 +26,62 @@ export default function CompareRegionFilter({ regions, selectedRegions, onChange
   return (
     <div
       style={{
-        position: 'absolute',
-        top: 60,
-        left: 20,
-        zIndex: 1000,
-        background: 'white',
-        padding: '15px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        minWidth: '220px',
+        background: '#ffffff',
+        padding: '16px',
+        borderRadius: '10px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        border: '1px solid #e5e7eb',
+        width: '240px',
+        marginBottom: '20px',
       }}
     >
-      <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label>
-          <strong>Filter by Province:</strong>
-        </label>
+      {/* Header */}
+      <div
+        style={{
+          marginBottom: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span style={{ fontWeight: 600, fontSize: '15px' }}>Filter by Province</span>
+
         <button
           onClick={handleSelectAll}
           style={{
             fontSize: '11px',
-            padding: '4px 8px',
+            padding: '4px 10px',
             cursor: 'pointer',
-            background: '#f3f4f6',
+            background: '#f1f5f9',
             border: '1px solid #d1d5db',
-            borderRadius: '4px',
+            borderRadius: '6px',
           }}
         >
           {selectedRegions.length === regions.length ? 'Clear All' : 'Select All'}
         </button>
       </div>
+
+      {/* List */}
       <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
         {regions.map((region) => (
-          <div key={region} style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={selectedRegions.includes(region)}
-                onChange={() => handleToggle(region)}
-                style={{ marginRight: '8px', cursor: 'pointer' }}
-              />
-              <span>{region}</span>
-            </label>
-          </div>
+          <label
+            key={region}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '10px',
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedRegions.includes(region)}
+              onChange={() => handleToggle(region)}
+              style={{ marginRight: '10px', cursor: 'pointer' }}
+            />
+            {region}
+          </label>
         ))}
       </div>
     </div>

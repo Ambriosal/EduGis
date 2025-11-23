@@ -4,7 +4,7 @@ import CompareFacilityTypeFilter from './components/CompareFacilityTypeFilter';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface FacilityCount {
-  province: string;
+  region: string; // Changed from province to region to match backend
   count: number;
 }
 
@@ -18,23 +18,13 @@ interface ChartDataPoint {
   [key: string]: string | number;
 }
 
-// --- MOCK FALLBACKS (moved outside component) ---
-const mockFacilityTypes = ['Primary School', 'Secondary School', 'College'];
-const mockRegions = ['ON', 'QC', 'BC', 'AB'];
-const mockCompareData: FacilityCount[] = [
-  { province: 'ON', count: 120 },
-  { province: 'QC', count: 95 },
-  { province: 'BC', count: 70 },
-  { province: 'AB', count: 80 },
-];
-
 // Color palette for different facility types
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function CompareFacilities() {
-  const [facilityTypes, setFacilityTypes] = useState<string[]>(mockFacilityTypes);
+  const [facilityTypes, setFacilityTypes] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [regions, setRegions] = useState<string[]>(mockRegions);
+  const [regions, setRegions] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,9 +37,8 @@ export default function CompareFacilities() {
         const allTypes = Array.from(new Set(data.map((f) => f.type)));
         setFacilityTypes(allTypes);
       })
-      .catch(() => {
-        // fallback
-        setFacilityTypes(mockFacilityTypes);
+      .catch((error) => {
+        console.error('Error fetching facility types:', error);
       });
   }, []);
 
@@ -60,9 +49,8 @@ export default function CompareFacilities() {
       .then((data: string[]) => {
         if (Array.isArray(data)) setRegions(data);
       })
-      .catch(() => {
-        // fallback
-        setRegions(mockRegions);
+      .catch((error) => {
+        console.error('Error fetching regions:', error);
       });
   }, []);
 
@@ -82,33 +70,27 @@ export default function CompareFacilities() {
         const typeParam = encodeURIComponent(type);
         const regionParam = selectedRegions.length > 0 ? `&provinces=${selectedRegions.join(',')}` : '';
 
-        try {
-          const res = await fetch(`/api/facilities/compare?type=${typeParam}${regionParam}`);
-          if (!res.ok) throw new Error('API not available');
-          const json: FacilityCount[] = await res.json();
-          return { type, data: json };
-        } catch {
-          // Fallback to mock data when API is not available
-          console.log(`Using mock data for ${type}`);
-          let filteredMock = [...mockCompareData];
-          if (selectedRegions.length > 0) {
-            filteredMock = mockCompareData.filter((d) => selectedRegions.includes(d.province));
-          }
-          return { type, data: filteredMock };
-        }
+        const res = await fetch(`/api/facilities/compare?type=${typeParam}${regionParam}`);
+        if (!res.ok) throw new Error('API not available');
+        const json: FacilityCount[] = await res.json();
+        return { type, data: json };
       });
 
       const results = await Promise.all(promises);
+
+      console.log('Raw results from API:', JSON.stringify(results, null, 2));
 
       // Combine data from all facility types into a single chart dataset
       const provincesMap = new Map<string, ChartDataPoint>();
 
       results.forEach(({ type, data }) => {
+        console.log(`Processing type: ${type}, data:`, data);
         data.forEach((item: FacilityCount) => {
-          if (!provincesMap.has(item.province)) {
-            provincesMap.set(item.province, { province: item.province });
+          console.log(`  Region: ${item.region}, Count: ${item.count}`);
+          if (!provincesMap.has(item.region)) {
+            provincesMap.set(item.region, { province: item.region });
           }
-          const provinceData = provincesMap.get(item.province);
+          const provinceData = provincesMap.get(item.region);
           if (provinceData) {
             provinceData[type] = item.count;
           }
@@ -117,28 +99,13 @@ export default function CompareFacilities() {
 
       // Convert map to array and ensure it's always an array
       const combinedData = Array.from(provincesMap.values());
-      console.log('Chart data:', combinedData);
+      console.log('Chart data:', JSON.stringify(combinedData, null, 2));
+      console.log('Selected types:', selectedTypes);
+      console.log('Selected regions:', selectedRegions);
       setChartData(combinedData);
     } catch (error) {
       console.error('Error fetching comparison data:', error);
-      // Final fallback - use mock data for all selected types
-      const provincesMap = new Map<string, ChartDataPoint>();
-      selectedTypes.forEach((type) => {
-        let filteredMock = [...mockCompareData];
-        if (selectedRegions.length > 0) {
-          filteredMock = mockCompareData.filter((d) => selectedRegions.includes(d.province));
-        }
-        filteredMock.forEach((item) => {
-          if (!provincesMap.has(item.province)) {
-            provincesMap.set(item.province, { province: item.province });
-          }
-          const provinceData = provincesMap.get(item.province);
-          if (provinceData) {
-            provinceData[type] = item.count;
-          }
-        });
-      });
-      setChartData(Array.from(provincesMap.values()));
+      setChartData([]);
     } finally {
       setLoading(false);
     }
@@ -217,8 +184,7 @@ export default function CompareFacilities() {
       {!loading && selectedTypes.length > 0 && chartData.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', maxWidth: '600px', margin: '0 auto' }}>
           <p style={{ fontSize: '16px' }}>
-            No data available for the selected filters. The backend API endpoint hasn't been created yet, so mock data
-            will be used once you select a facility type.
+            No data available for the selected filters. Please try selecting different provinces or facility types.
           </p>
         </div>
       )}
