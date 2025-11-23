@@ -23,13 +23,25 @@ public interface FacilityRepository extends JpaRepository<Facility, Long> {
         )
         FROM Facility f
         WHERE f.type = :type
-          AND (:regions IS NULL OR f.region IN :regions)
+        AND f.region IN :regions
         GROUP BY f.region
         ORDER BY f.region
     """)
-    List<FacilityCount> getComparison(
-        @Param("type") String type,
-        @Param("regions") List<String> regions
+    List<FacilityCount> getComparisonFiltered(
+            @Param("type") String type,
+            @Param("regions") List<String> regions
     );
+
+    @Query("""
+        SELECT new com.example.cis4900.spring.template.models.FacilityCount(
+            f.region,
+            COUNT(f)
+        )
+        FROM Facility f
+        WHERE f.type = :type
+        GROUP BY f.region
+        ORDER BY f.region
+    """)
+    List<FacilityCount> getComparisonAll(@Param("type") String type);
 
 }

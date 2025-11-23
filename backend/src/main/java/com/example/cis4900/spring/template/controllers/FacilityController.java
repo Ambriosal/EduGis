@@ -32,12 +32,12 @@ public class FacilityController {
     @GetMapping("facilities/compare")
     public List<FacilityCount> getComparison(@RequestParam String type, @RequestParam(required = false) String provinces){
         
-        List<String> provinceList = null;
-        if(provinces != null && !provinces.isEmpty()){
-            provinceList = Arrays.asList(provinces.split(","));
+        if(provinces == null || provinces.isEmpty()){
+            return facilityRepository.getComparisonAll(type);
         }
 
-        return facilityRepository.getComparison(type, provinceList);
+        List<String> regionList = Arrays.asList(provinces.split(","));
+        return facilityRepository.getComparisonFiltered(type, regionList);
 
     }
 
