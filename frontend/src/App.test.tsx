@@ -56,11 +56,9 @@ jest.mock('./components/FacilityTypeFilter', () => {
   return FacilityTypeFilterMock;
 });
 
-// Mock CompareFacilities 
+// Mock CompareFacilities
 jest.mock('./CompareFacilities', () => {
-  const CompareFacilitiesMock = () => (
-    <div data-testid="compare-facilities-mock">CompareFacilitiesMock</div>
-  );
+  const CompareFacilitiesMock = () => <div data-testid="compare-facilities-mock">CompareFacilitiesMock</div>;
   CompareFacilitiesMock.displayName = 'CompareFacilitiesMock';
   return CompareFacilitiesMock;
 });
@@ -71,12 +69,8 @@ jest.mock('react-leaflet', () => ({
     <div data-testid="map-container-mock">{children}</div>
   ),
   TileLayer: () => <div data-testid="tile-layer-mock" />,
-  Marker: ({ children }: { children?: React.ReactNode }) => (
-    <div data-testid="marker-mock">{children}</div>
-  ),
-  Popup: ({ children }: { children?: React.ReactNode }) => (
-    <div data-testid="popup-mock">{children}</div>
-  ),
+  Marker: ({ children }: { children?: React.ReactNode }) => <div data-testid="marker-mock">{children}</div>,
+  Popup: ({ children }: { children?: React.ReactNode }) => <div data-testid="popup-mock">{children}</div>,
 }));
 
 // Mock leaflet
@@ -96,9 +90,7 @@ jest.mock('leaflet.markercluster', () => ({}), { virtual: true });
 
 jest.mock('react-leaflet-cluster', () => ({
   __esModule: true,
-  default: ({ children }: { children?: React.ReactNode }) => (
-    <div data-testid="cluster-group-mock">{children}</div>
-  ),
+  default: ({ children }: { children?: React.ReactNode }) => <div data-testid="cluster-group-mock">{children}</div>,
 }));
 
 // ---- fetch mocking ----
@@ -162,9 +154,8 @@ test('filters facilities when regions are selected', async () => {
     throw new Error('RegionFilter onChange was not captured');
   }
 
-
   act(() => {
-    lastRegionOnChange!(['ON']);  // Simulate user selecting only "ON"
+    lastRegionOnChange!(['ON']); // Simulate user selecting only "ON"
   });
 
   await waitFor(() => {
@@ -220,12 +211,7 @@ test('falls back to default regions when /api/regions returns non-array', async 
   await screen.findByTestId('region-filter-mock');
 
   await waitFor(() => {
-    expect(lastRegionsProp).toEqual([
-      'Ontario',
-      'Quebec',
-      'Alberta',
-      'British Columbia',
-    ]);
+    expect(lastRegionsProp).toEqual(['Ontario', 'Quebec', 'Alberta', 'British Columbia']);
   });
 });
 
