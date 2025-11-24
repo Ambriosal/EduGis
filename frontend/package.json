@@ -29,12 +29,13 @@
     "ajv": "^6.12.6",
     "ajv-keywords": "^3.5.2",
     "is-typedarray": "^1.0.0",
+    "leaflet": "^1.9.x",
     "prettier": "^3.6.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "leaflet": "^1.9.x",
     "react-leaflet": "^4.2.x",
-    "react-leaflet-cluster": "^3.1.1"
+    "react-leaflet-cluster": "^3.1.1",
+    "recharts": "^3.4.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
@@ -43,6 +44,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^27.5.2",
+    "@types/leaflet": "^1.9.x",
     "@types/node": "^14.14.41",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
@@ -60,8 +62,7 @@
     "react-scripts": "5.0.1",
     "ts-jest": "^27.1.5",
     "typescript": "^4.3.2",
-    "typescript-eslint": "^8.45.0",
-    "@types/leaflet": "^1.9.x"
+    "typescript-eslint": "^8.45.0"
   },
   "browserslist": {
     "production": [

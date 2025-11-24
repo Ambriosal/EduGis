@@ -9,6 +9,7 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 
 import 'leaflet.markercluster';
 import type { MarkerCluster } from 'leaflet.markercluster';
+import CompareFacilities from './CompareFacilities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -41,6 +42,7 @@ interface Facility {
 }
 
 export default function App() {
+  const [view, setView] = useState<'map' | 'compare'>('map');
   const [facilities, setFacilities] = useState<Facility[]>([]);
 
   // region filter state
@@ -100,44 +102,56 @@ export default function App() {
 
   return (
     <>
-      <RegionFilter regions={regions} selectedRegions={selectedRegions} onChange={setSelectedRegions} />
+      {/* View toggle buttons */}
+      <div style={{ position: 'absolute', zIndex: 1000, top: 10, right: 10, display: 'flex', gap: '10px' }}>
+        <button onClick={() => setView('map')}>Map View</button>
+        <button onClick={() => setView('compare')}>Compare Facilities</button>
+      </div>
 
-      <FacilityTypeFilter types={facilityTypes} selectedTypes={selectedTypes} onChange={setSelectedTypes} />
+      {view === 'map' && (
+        <>
+          <RegionFilter regions={regions} selectedRegions={selectedRegions} onChange={setSelectedRegions} />
 
-      <MapContainer
-        center={defaultCenter}
-        zoom={defaultZoom}
-        scrollWheelZoom
-        className="map-container"
-        style={{ height: '100vh', width: '100%' }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; OpenStreetMap contributors"
-        />
+          <FacilityTypeFilter types={facilityTypes} selectedTypes={selectedTypes} onChange={setSelectedTypes} />
 
-        <MarkerClusterGroup
-          maxClusterRadius={100}
-          iconCreateFunction={createClusterCustomIcon}
-          showCoverageOnHover={false}
-        >
-          {filteredFacilities.map((facility) => (
-            <Marker key={facility.id} position={[facility.latitude, facility.longitude]}>
-              <Popup>
-                <strong>{facility.name}</strong>
-                <br />
-                <em>Type:</em> {facility.type}
-                <br />
-                <em>Region:</em> {facility.region}
-                <br />
-                Lat: {facility.latitude}
-                <br />
-                Lng: {facility.longitude}
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
-      </MapContainer>
+          <MapContainer
+            center={defaultCenter}
+            zoom={defaultZoom}
+            scrollWheelZoom
+            className="map-container"
+            style={{ height: '100vh', width: '100%' }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution="&copy; OpenStreetMap contributors"
+            />
+
+            <MarkerClusterGroup
+              maxClusterRadius={100}
+              iconCreateFunction={createClusterCustomIcon}
+              showCoverageOnHover={false}
+            >
+              {filteredFacilities.map((facility) => (
+                <Marker key={facility.id} position={[facility.latitude, facility.longitude]}>
+                  <Popup>
+                    <strong>{facility.name}</strong>
+                    <br />
+                    <em>Type:</em> {facility.type}
+                    <br />
+                    <em>Region:</em> {facility.region}
+                    <br />
+                    Lat: {facility.latitude}
+                    <br />
+                    Lng: {facility.longitude}
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+          </MapContainer>
+        </>
+      )}
+
+      {view === 'compare' && <CompareFacilities />}
     </>
   );
 }

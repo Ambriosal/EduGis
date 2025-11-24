@@ -57,7 +57,7 @@ code {
 }
 
 .leaflet-cluster-anim .leaflet-marker-icon {
-  opacity: 0 !important;  /* hide markers during clustering */
+  opacity: 0 !important; /* hide markers during clustering */
 }
 
 .marker-cluster-small,
@@ -72,4 +72,3 @@ code {
   color: white;
   font-weight: bold;
 }
-
