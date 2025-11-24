@@ -1,9 +1,11 @@
 package com.example.cis4900.spring.template.controllers;
 
 import com.example.cis4900.spring.template.models.Facility;
+import com.example.cis4900.spring.template.models.FacilityCount;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +31,6 @@ class FacilityControllerTest {
     void getAllFacilities_returnsListFromRepository() {
         Facility f1 = new Facility("Facility A", 43.0, -79.0, "Elementary", "ON");
         f1.setId(1L);
-
         Facility f2 = new Facility("Facility B", 44.0, -80.0, "Secondary", "QC");
         f2.setId(2L);
 
@@ -55,6 +57,78 @@ class FacilityControllerTest {
         assertTrue(result.isEmpty());
 
         verify(facilityRepository, times(1)).findAll();
+        verifyNoMoreInteractions(facilityRepository);
+    }
+
+    @Test
+    void getRegions_returnsListFromRepository() {
+        List<String> regions = Arrays.asList("ON", "QC", "BC");
+        when(facilityRepository.getRegions()).thenReturn(regions);
+
+        List<String> result = facilityController.getRegions();
+
+        assertEquals(regions, result);
+        verify(facilityRepository, times(1)).getRegions();
+        verifyNoMoreInteractions(facilityRepository);
+    }
+
+    @Test
+    void getComparison_noProvinces_callsGetComparisonAll() {
+        // mock FacilityCount objects (don’t care about fields)
+        FacilityCount fc1 = mock(FacilityCount.class);
+        List<FacilityCount> repoResult = List.of(fc1);
+
+        when(facilityRepository.getComparisonAll("School"))
+                .thenReturn(repoResult);
+
+        List<FacilityCount> result = facilityController.getComparison("School", null);
+
+        assertSame(repoResult, result);
+        verify(facilityRepository, times(1)).getComparisonAll("School");
+        verify(facilityRepository, never()).getComparisonFiltered(anyString(), anyList());
+        verifyNoMoreInteractions(facilityRepository);
+    }
+
+    @Test
+    void getComparison_emptyProvinces_callsGetComparisonAll() {
+        FacilityCount fc1 = mock(FacilityCount.class);
+        List<FacilityCount> repoResult = List.of(fc1);
+
+        when(facilityRepository.getComparisonAll("School"))
+                .thenReturn(repoResult);
+
+        List<FacilityCount> result = facilityController.getComparison("School", "");
+
+        assertSame(repoResult, result);
+        verify(facilityRepository, times(1)).getComparisonAll("School");
+        verify(facilityRepository, never()).getComparisonFiltered(anyString(), anyList());
+        verifyNoMoreInteractions(facilityRepository);
+    }
+
+    @Test
+    void getComparison_withProvinces_callsGetComparisonFilteredWithSplitList() {
+        FacilityCount fc1 = mock(FacilityCount.class);
+        FacilityCount fc2 = mock(FacilityCount.class);
+        List<FacilityCount> repoResult = Arrays.asList(fc1, fc2);
+
+        when(facilityRepository.getComparisonFiltered(eq("School"), anyList()))
+                .thenReturn(repoResult);
+
+        List<FacilityCount> result =
+                facilityController.getComparison("School", "ON,QC");
+
+        assertSame(repoResult, result);
+
+        // capture the list passed into the repository
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
+        verify(facilityRepository, times(1))
+                .getComparisonFiltered(eq("School"), captor.capture());
+
+        List<String> passedRegions = captor.getValue();
+        assertEquals(Arrays.asList("ON", "QC"), passedRegions);
+
+        verify(facilityRepository, never()).getComparisonAll(anyString());
         verifyNoMoreInteractions(facilityRepository);
     }
 
