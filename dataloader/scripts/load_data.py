@@ -73,9 +73,9 @@ def combine_types(row):
 
     if row[type_cols[5]] == 1:
         return "Post Secondary"
-    elif row[type_cols[4]] == 1 or row[type_cols[3]] == 1:
+    elif row[type_cols[4]] == '1' or row[type_cols[3]] == '1':
         return "Secondary"
-    elif row[type_cols[2]] == 1:
+    elif row[type_cols[2]] == '1':
         return "Elementary"
     else:
         return "Early Childhood Education"
