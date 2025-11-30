@@ -4,9 +4,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Arrays;
+import java.Collections;
 
 import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.models.FacilityCount;
+import com.example.cis4900.spring.template.models.FacilityInfo;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +41,16 @@ public class FacilityController {
         List<String> regionList = Arrays.asList(provinces.split(","));
         return facilityRepository.getComparisonFiltered(type, regionList);
 
+    }
+
+    @GetMapping("facilities/info")
+    public List<FacilityInfo> getRegionInfo(@RequestParam List<String> regions){
+        if(regions == null || regions.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        List<String> regionList = Arrays.asList(regions.split(","));
+        return facilityRepository.getRegionInfo(regionList);
     }
 
 }
