@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Arrays;
-import java.Collections;
+import java.util.Collections;
 
 import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.models.FacilityCount;
@@ -49,8 +49,7 @@ public class FacilityController {
             return Collections.emptyList();
         }
 
-        List<String> regionList = Arrays.asList(regions.split(","));
-        return facilityRepository.getRegionInfo(regionList);
+        return facilityRepository.getRegionInfo(regions);
     }
 
 }
