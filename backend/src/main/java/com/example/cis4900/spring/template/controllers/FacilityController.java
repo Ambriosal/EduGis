@@ -9,6 +9,8 @@ import java.util.Collections;
 import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.models.FacilityCount;
 import com.example.cis4900.spring.template.models.FacilityInfo;
+import com.example.cis4900.spring.template.models.FacilityType;
+import com.example.cis4900.spring.template.models.RegionFilter;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,12 +36,14 @@ public class FacilityController {
     @GetMapping("facilities/compare")
     public List<FacilityCount> getComparison(@RequestParam String type, @RequestParam(required = false) String provinces){
         
-        if(provinces == null || provinces.isEmpty()){
-            return facilityRepository.getComparisonAll(type);
+        FacilityType facilityType = new FacilityType(type);
+        RegionFilter regionFilter = new RegionFilter(provinces);
+
+        if (regionFilter.isEmpty()){
+            return facilityRepository.getComparisonAll(facilityType.getValue());
         }
 
-        List<String> regionList = Arrays.asList(provinces.split(","));
-        return facilityRepository.getComparisonFiltered(type, regionList);
+        return facilityRepository.getComparisonFiltered(facilityType.getValue(), regionFilter.getRegions());
 
     }
 
