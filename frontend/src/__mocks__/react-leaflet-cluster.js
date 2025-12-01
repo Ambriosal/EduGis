@@ -1,5 +1,5 @@
 function MockClusterGroup() {
-    return null;
+  return null;
 }
 
 module.exports = MockClusterGroup;

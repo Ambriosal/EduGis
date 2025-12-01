@@ -155,8 +155,6 @@ test('shows statistics panel with correct total count', async () => {
   });
 });
 
-
-
 test('filters facilities when regions are selected', async () => {
   render(<App />);
 
