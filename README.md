@@ -16,9 +16,6 @@ EduGis gathers thousands of data points (location and type) from the Open Databa
 Access the public deployment here: **[EduGis Live Site](https://sapphire.socs.uoguelph.ca/)**
 
 ---
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
----
 
 ## Built With 
 - **Data Processing/Vis:** Python (Leaflet)
