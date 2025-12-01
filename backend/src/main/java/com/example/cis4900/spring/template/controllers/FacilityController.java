@@ -9,8 +9,6 @@ import java.util.Collections;
 import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.models.FacilityCount;
 import com.example.cis4900.spring.template.models.FacilityInfo;
-import com.example.cis4900.spring.template.models.FacilityType;
-import com.example.cis4900.spring.template.models.RegionFilter;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
 
 import org.springframework.web.bind.annotation.RequestParam;
