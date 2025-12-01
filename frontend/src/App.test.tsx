@@ -144,6 +144,17 @@ test('renders facilities on the map and wires filters', async () => {
   });
 });
 
+test('shows statistics panel with correct total count', async () => {
+  render(<App />);
+
+  const statsHeading = await screen.findByText(/Facility Statistics/i);
+  const panel = statsHeading.closest('div') as HTMLElement;
+
+  await waitFor(() => {
+    expect(panel).toHaveTextContent(/Total:\s*2/);
+  });
+});
+
 test('filters facilities when regions are selected', async () => {
   render(<App />);
 
