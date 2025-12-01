@@ -3,10 +3,12 @@ package com.example.cis4900.spring.template.controllers;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
-//import java.util.Arrays;
+import java.util.Arrays;
+import java.util.Collections;
 
 import com.example.cis4900.spring.template.models.Facility;
 import com.example.cis4900.spring.template.models.FacilityCount;
+import com.example.cis4900.spring.template.models.FacilityInfo;
 import com.example.cis4900.spring.template.models.FacilityType;
 import com.example.cis4900.spring.template.models.RegionFilter;
 import com.example.cis4900.spring.template.repositories.FacilityRepository;
@@ -43,6 +45,15 @@ public class FacilityController {
 
         return facilityRepository.getComparisonFiltered(facilityType.getValue(), regionFilter.getRegions());
 
+    }
+
+    @GetMapping("facilities/info")
+    public List<FacilityInfo> getRegionInfo(@RequestParam List<String> regions){
+        if(regions == null || regions.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        return facilityRepository.getRegionInfo(regions);
     }
 
 }
