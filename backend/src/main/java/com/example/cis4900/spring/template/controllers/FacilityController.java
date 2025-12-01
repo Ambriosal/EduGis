@@ -41,12 +41,6 @@ public class FacilityController {
             return facilityRepository.getComparisonAll(facilityType.getValue());
         }
 
-        // if(provinces == null || provinces.isEmpty()){
-        //     return facilityRepository.getComparisonAll(type);
-        // }
-
-        // List<String> regionList = Arrays.asList(provinces.split(","));
-
         return facilityRepository.getComparisonFiltered(facilityType.getValue(), regionFilter.getRegions());
 
     }
