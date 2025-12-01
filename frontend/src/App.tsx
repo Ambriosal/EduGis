@@ -84,18 +84,29 @@ export default function App() {
       .catch(() => setRegions(['Ontario', 'Quebec', 'Alberta', 'British Columbia']));
   }, []);
 
+  // // ---- Apply both filters ----
+  // let filteredFacilities = [...facilities];
+
+  // // region filter
+  // if (selectedRegions.length > 0) {
+  //   filteredFacilities = filteredFacilities.filter((f) => selectedRegions.includes(f.region || ''));
+  // }
+
+  // // type filter
+  // if (selectedTypes.length > 0) {
+  //   filteredFacilities = filteredFacilities.filter((f) => selectedTypes.includes(f.type || 'Unknown'));
+  // }
+
+  //Refactored
+
+  const applyFilters = (facilities: Facility[], selectedRegions: string[], selectedTypes: string[]): Facility[] => {
+    return facilities
+      .filter((f: Facility) => selectedRegions.length === 0 || selectedRegions.includes(f.region || ''))
+      .filter((f: Facility) => selectedTypes.length === 0 || selectedTypes.includes(f.type || 'Unknown'));
+  };
+
   // ---- Apply both filters ----
-  let filteredFacilities = [...facilities];
-
-  // region filter
-  if (selectedRegions.length > 0) {
-    filteredFacilities = filteredFacilities.filter((f) => selectedRegions.includes(f.region || ''));
-  }
-
-  // type filter
-  if (selectedTypes.length > 0) {
-    filteredFacilities = filteredFacilities.filter((f) => selectedTypes.includes(f.type || 'Unknown'));
-  }
+  const filteredFacilities = applyFilters(facilities, selectedRegions, selectedTypes);
 
   const defaultCenter: [number, number] = [43.6532, -79.3832];
   const defaultZoom = 6;
@@ -131,7 +142,7 @@ export default function App() {
               iconCreateFunction={createClusterCustomIcon}
               showCoverageOnHover={false}
             >
-              {filteredFacilities.map((facility) => (
+              {filteredFacilities.map((facility: Facility) => (
                 <Marker key={facility.id} position={[facility.latitude, facility.longitude]}>
                   <Popup>
                     <strong>{facility.name}</strong>
