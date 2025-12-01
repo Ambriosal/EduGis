@@ -8,10 +8,10 @@ module.exports = {
   testEnvironment: 'jsdom',
   roots: ['<rootDir>/src'],
   // transform: tsJestTransformCfg,
-    transform: {
+  transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
-    // Module file extensions
+  // Module file extensions
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
